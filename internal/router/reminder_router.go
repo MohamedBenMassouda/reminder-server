@@ -14,6 +14,8 @@ func SetupReminderRouter(router *gin.Engine, reminderHandler *handlers.ReminderH
 
 	reminders.POST("/", reminderHandler.Create)
 
+	reminders.PUT("/:id/status", reminderHandler.UpdateStatus)
+
 	reminders.PATCH("/:id", reminderHandler.Update)
 
 	reminders.DELETE("/:id", reminderHandler.Delete)

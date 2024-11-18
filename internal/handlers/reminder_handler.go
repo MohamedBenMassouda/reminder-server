@@ -95,3 +95,25 @@ func (h *ReminderHandler) Delete(c *gin.Context) {
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
+
+func (h *ReminderHandler) UpdateStatus(c *gin.Context) {
+	reminderID, err := strconv.Atoi(c.Param("id"))
+
+	var req struct {
+		Status string `json:"status" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	reminder, err := h.service.UpdateStatus(int64(reminderID), req.Status)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, reminder)
+}
