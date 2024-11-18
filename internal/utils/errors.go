@@ -12,6 +12,7 @@ const (
 	ErrorFailedToHash      = "Failed to hash password"
 	ErrorInternalServer    = "Internal server error"
 	ErrorCategoryNotFound  = "Category not found"
+	ErrorInvalidStatus     = "Invalid status"
 )
 
 func ErrorSqlNoRows(err error) error {

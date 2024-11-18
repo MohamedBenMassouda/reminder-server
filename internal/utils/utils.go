@@ -29,3 +29,7 @@ func GenerateToken(user models.User) (string, error) {
 
 	return tokenString, nil
 }
+
+func GetCurrentTime() time.Time {
+	return time.Now()
+}
