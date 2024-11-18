@@ -1,23 +1,23 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 )
 
 type Reminder struct {
-	ID               int64  `json:"id"`
-	Title            string `json:"title"`
-	Description      string `json:"description"`
-	CategoryID       int64  `json:"category_id"`
-	DueDate          string `json:"due_date"`
-	Priority         string `json:"priority"`
-	Status           string `json:"status"`
-	IsRecurring      bool   `json:"is_recurring"`
-	RecurringPattern string `json:"recurring_pattern,omitempty"`
-	UserID           int64  `json:"user_id"`
-	CreatedAt        string `json:"created_at"`
-	UpdatedAt        string `json:"updated_at"`
+	ID               int64      `json:"id"`
+	Title            string     `json:"title"`
+	Description      string     `json:"description"`
+	CategoryID       int64      `json:"category_id"`
+	DueDate          *time.Time `json:"due_date" gorm:"type:date"`
+	Priority         string     `json:"priority"`
+	Status           string     `json:"status"`
+	IsRecurring      bool       `json:"is_recurring"`
+	RecurringPattern string     `json:"recurring_pattern,omitempty"`
+	UserID           int64      `json:"user_id"`
+	IsOverdue        bool       `json:"is_overdue" gorm:"-"`
+	CreatedAt        *time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt        *time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
 type ReminderResponse struct {
@@ -65,25 +65,3 @@ const (
 	PriorityMedium = "medium"
 	PriorityHigh   = "high"
 )
-
-func (rc *ReminderCreateRequest) UnmarshalJSON(data []byte) error {
-	type Alias ReminderCreateRequest
-	aux := &struct {
-		DueDate string `json:"due_date"`
-		*Alias
-	}{
-		Alias: (*Alias)(rc),
-	}
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-
-	dueDate, err := time.Parse(time.DateTime, aux.DueDate)
-	if err != nil {
-		return err
-	}
-
-	rc.DueDate = dueDate
-
-	return nil
-}
