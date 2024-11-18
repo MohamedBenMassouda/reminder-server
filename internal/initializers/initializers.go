@@ -13,10 +13,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type Config struct {
+	Port string
+}
+
 type Initializers struct {
 	CategoryHandler *handlers.CategoryHandler
 	ReminderHandler *handlers.ReminderHandler
 	UserHandler     *handlers.UserHandler
+	Config          *Config
 }
 
 var (
@@ -74,10 +79,15 @@ func NewInitializers() *Initializers {
 
 	seedCategories(categoryService)
 
+	config := &Config{
+		Port: os.Getenv("PORT"),
+	}
+
 	return &Initializers{
 		CategoryHandler: handlers.NewCategoryHandler(categoryService),
 		ReminderHandler: handlers.NewReminderHandler(reminderService),
 		UserHandler:     handlers.NewUserHandler(userService),
+		Config:          config,
 	}
 }
 

@@ -14,5 +14,5 @@ func main() {
 
 	router.SetupRouter(r, *in)
 
-	r.Run(":8080")
+	r.Run(":" + in.Config.Port)
 }
