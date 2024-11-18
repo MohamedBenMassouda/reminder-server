@@ -36,6 +36,18 @@ func (rs *ReminderService) List(userID int32) ([]models.Reminder, error) {
 		return []models.Reminder{}, err
 	}
 
+	tx := rs.repo.GetDB().Begin()
+
+	// Check if the reminders are overdue
+	for i, reminder := range reminders {
+		if !reminder.IsOverdue && reminder.DueDate.Before(utils.GetCurrentTime()) {
+			reminders[i].IsOverdue = true
+			tx.Save(&reminders[i])
+		}
+	}
+
+	tx.Commit()
+
 	return reminders, nil
 }
 
@@ -54,7 +66,7 @@ func (rs *ReminderService) Create(request models.ReminderCreateRequest) (models.
 	newReminder := models.Reminder{
 		Title:            request.Title,
 		Description:      request.Description,
-		DueDate:          request.DueDate.String(),
+		DueDate:          &request.DueDate,
 		CategoryID:       request.CategoryID,
 		IsRecurring:      request.IsRecurring,
 		RecurringPattern: request.RecurringPattern,
@@ -100,7 +112,7 @@ func (rs *ReminderService) Update(id int64, request models.ReminderUpdateRequest
 	}
 
 	if request.DueDate != nil {
-		reminder.DueDate = request.DueDate.String()
+		reminder.DueDate = request.DueDate
 	}
 
 	if request.Priority != nil {
@@ -128,4 +140,26 @@ func (rs *ReminderService) Delete(id int64) error {
 	err := rs.repo.Delete(id)
 
 	return err
+}
+
+func (rs *ReminderService) UpdateStatus(id int64, status string) (models.Reminder, error) {
+	reminder, err := rs.Get(id)
+
+	if err != nil {
+		return models.Reminder{}, err
+	}
+
+	if status != models.StatusPending && status != models.StatusCompleted {
+		return models.Reminder{}, errors.New(utils.ErrorInvalidStatus)
+	}
+
+	if reminder.Status == status {
+		return reminder, nil
+	}
+
+	reminder.Status = status
+
+	updatedReminder, err := rs.repo.Update(reminder)
+
+	return updatedReminder, err
 }
