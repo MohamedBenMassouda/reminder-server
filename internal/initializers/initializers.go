@@ -116,7 +116,7 @@ func seedCategories(categoryService *services.CategoryService) {
 		},
 	}
 
-	err := categoryService.CreateBulk(categories)
+	err = categoryService.CreateBulk(categories)
 
 	if err != nil {
 		log.Fatal("Error seeding categories")
