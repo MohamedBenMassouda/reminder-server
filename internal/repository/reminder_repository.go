@@ -45,7 +45,9 @@ func (rr *ReminderRepository) FindByID(id int64) (models.Reminder, error) {
 
 func (rr *ReminderRepository) FindByUserID(userID int64) ([]models.Reminder, error) {
 	var reminders []models.Reminder
-	result := rr.db.Where("user_id = ?", userID).Find(&reminders)
+	result := rr.db.Where("user_id = ?", userID).Order(
+		"due_date ASC",
+	).Find(&reminders)
 
 	return reminders, result.Error
 }
