@@ -1,0 +1,46 @@
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump semantic version with rollover
+        run: |
+          # get latest tag, default to v0.0.0 if none
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Last tag: $LAST_TAG"
+
+          VERSION=${LAST_TAG#v}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          # increment patch
+          PATCH=$((PATCH + 1))
+
+          # rollover patch at 10
+          if [ "$PATCH" -ge 10 ]; then
+            PATCH=0
+            MINOR=$((MINOR + 1))
+          fi
+
+          # rollover minor at 10
+          if [ "$MINOR" -ge 10 ]; then
+            MINOR=0
+            MAJOR=$((MAJOR + 1))
+          fi
+
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "New tag: $NEW_TAG"
+
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+
