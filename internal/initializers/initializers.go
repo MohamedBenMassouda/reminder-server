@@ -79,8 +79,14 @@ func NewInitializers() *Initializers {
 
 	seedCategories(categoryService)
 
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
 	config := &Config{
-		Port: os.Getenv("PORT"),
+		Port: port,
 	}
 
 	return &Initializers{
