@@ -13,6 +13,7 @@ const (
 	ErrorInternalServer    = "Internal server error"
 	ErrorCategoryNotFound  = "Category not found"
 	ErrorInvalidStatus     = "Invalid status"
+	ErrorInvalidPriority   = "Invalid priority"
 )
 
 func ErrorSqlNoRows(err error) error {

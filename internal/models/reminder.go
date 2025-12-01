@@ -60,6 +60,7 @@ type ReminderUpdateRequest struct {
 const (
 	StatusPending   = "pending"
 	StatusCompleted = "completed"
+	StatusOverdue   = "overdue"
 
 	PriorityLow    = "low"
 	PriorityMedium = "medium"

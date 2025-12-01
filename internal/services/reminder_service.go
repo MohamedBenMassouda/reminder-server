@@ -86,6 +86,10 @@ func (rs *ReminderService) Create(request models.ReminderCreateRequest) (models.
 		return models.Reminder{}, errors.New(utils.ErrorCategoryNotFound)
 	}
 
+	if !utils.IsValidPriority(request.Priority) {
+		return models.Reminder{}, errors.New(utils.ErrorInvalidPriority)
+	}
+
 	reminder, err := rs.repo.Create(newReminder)
 
 	return reminder, err
