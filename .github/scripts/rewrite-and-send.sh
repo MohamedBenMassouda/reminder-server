@@ -22,7 +22,8 @@ Now output ONLY the cleaned, non-technical release notes text. No preamble.
 EOF
 )
 
-echo "Prompt built. Sending to model..."
+echo "Prompt: $PROMPT"
+echo "Sending prompt to model..."
 
 RESPONSE=$(curl -sS https://models.github.ai/inference/chat/completions \
   -H "Content-Type: application/json" \
@@ -30,13 +31,14 @@ RESPONSE=$(curl -sS https://models.github.ai/inference/chat/completions \
   -d "$(jq -n --arg model "$GH_MODEL" --arg prompt "$PROMPT" '{
         model: $model,
         messages: [
-          { role: "system", content: "You are a helpful assistant that cleans and simplifies release notes for a general audience." },
+          { "role": "system", "content": "Rewrite release notes and output STRICT JSON matching required schema." },
           { role: "user", content: $prompt }
         ],
         max_tokens: 800
       }')")
       
 
+echo "Response: $RESPONSE"
 echo "Model response received."
 
 MODEL_JSON=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
