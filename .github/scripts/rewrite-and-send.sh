@@ -6,11 +6,10 @@ set -euo pipefail
 : "${GH_MODEL:?GH_MODEL is required}"
 : "${CURR_TAG:?CURR_TAG is required}"
 
-echo "Preparing to rewrite and send release notes for tag ${CURR_TAG} on ${DATE}"
-
 DATE=$(date +"%Y-%m-%d")
 SUBJECT="Foreman ${CURR_TAG} Release Notes - ${DATE}"
 
+echo "Preparing to rewrite and send release notes for tag ${CURR_TAG} on ${DATE}"
 echo "Generating cleaned release notes using model ${GH_MODEL}"
 
 # 1) Build the prompt
