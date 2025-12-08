@@ -21,8 +21,13 @@ func NewReminderHandler(service *services.ReminderService) *ReminderHandler {
 
 func (h *ReminderHandler) List(c *gin.Context) {
 	// TODO: Take the user id from the authenticated user
+	userID := c.GetInt64("user_id")
 
-	reminders, err := h.service.List(1)
+	if userID == 0 {
+		userID = 1 // Temporary hardcoded user ID for testing
+	}
+
+	reminders, err := h.service.List(int32(userID))
 
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
