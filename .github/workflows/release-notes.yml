@@ -20,7 +20,6 @@ jobs:
       - name: Determine tags
         run: |
           echo "CURR_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-          echo "PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)" >> $GITHUB_ENV
 
       - name: Generate Release Notes
         env:
