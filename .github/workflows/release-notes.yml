@@ -1,9 +1,10 @@
 name: Release notes to Teams (non-technical)
 
 on:
-  push:
-    branches:
-      - stable
+  workflow_run:
+    workflows: ["Auto Tag"]
+    types:
+      - completed
 
 jobs:
   release-notes:
