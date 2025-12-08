@@ -41,10 +41,11 @@ echo "Model response received."
 
 MODEL_JSON=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
 
-# Optionally save for debugging
-echo "$CLEANED" > cleaned_release_notes.txt
+echo "Model Json: $MODEL_JSON"
 
 FINAL_JSON=$(echo "$MODEL_JSON" | jq --arg subject "Foreman ${CURR_TAG} Release Notes - ${DATE}" '. + { subject: $subject }')
+
+echo "Final JSON: $FINAL_JSON"
 
 echo "Final JSON prepared. Sending to Microsoft Teams webhook..."
 
