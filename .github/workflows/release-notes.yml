@@ -43,6 +43,7 @@ jobs:
         env:
           GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          GH_MODEL: ${{ secrets.GH_MODEL }}
         run: |
           .github/scripts/rewrite-and-send.sh
 
