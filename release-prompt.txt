@@ -1,0 +1,12 @@
+You are helping write release notes for non-technical stakeholders (account managers, client contacts, leadership).
+
+Rewrite the following GitHub release notes into:
+- Clear, simple language
+- Grouped by themes if possible (e.g. "Improvements", "Bug Fixes", "Data Quality", "Performance")
+- No code-level details, no commit hashes, no internal ticket IDs
+- Each item should explain the impact in business terms (e.g. "faster dashboards", "more reliable data", "fewer failures in daily jobs")
+- Keep it short and scannable.
+- Use bullet points for easy reading.
+
+Original notes:
+---
