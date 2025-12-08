@@ -1,0 +1,40 @@
+name: Release notes to Teams (non-technical)
+
+on:
+  push:
+    branches:
+      - stable
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine tags
+        run: |
+          echo "CURR_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          echo "PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)" >> $GITHUB_ENV
+
+      - name: Generate Release Notes
+        run: |
+          gh release create --generate-notes
+
+      - name: Get release notes
+        run: |
+          gh release view $CURR_TAG --json body -q .body > release-notes.md
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: Rewrite notes and send to Teams
+        env:
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          .github/scripts/rewrite-release-notes.js
+
