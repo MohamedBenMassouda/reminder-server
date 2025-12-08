@@ -23,7 +23,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create --generate-notes
+          gh release create --generate-notes --latest $CURR_TAG
 
       - name: Get release notes
         env:
