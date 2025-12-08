@@ -43,6 +43,16 @@ MODEL_JSON=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
 
 echo "Model Json: $MODEL_JSON"
 
+if [[ -z "$MODEL_JSON" || "$MODEL_JSON" == "null" ]]; then
+    echo "Model returned empty or null JSON. Skipping Teams notification."
+    exit 0
+fi
+
+if ! echo "$MODEL_JSON" | jq empty >/dev/null 2>&1; then
+    echo "Model output is not valid JSON. Skipping Teams notification."
+    exit 0
+fi
+
 FINAL_JSON=$(echo "$MODEL_JSON" | jq --arg subject "Foreman ${CURR_TAG} Release Notes - ${DATE}" '. + { subject: $subject }')
 
 echo "Final JSON: $FINAL_JSON"
