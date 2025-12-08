@@ -8,6 +8,7 @@ import (
 
 type categoryRepository interface {
 	FindAll() ([]models.Category, error)
+	FindAllPaginated(limit int, offset int) (models.Pagination, error)
 	FindByID(id int64) (models.Category, error)
 	FindByUserID(userID int64) ([]models.Category, error)
 	Create(category models.Category) (models.Category, error)
@@ -31,6 +32,20 @@ func (cr *CategoryRepository) FindAll() ([]models.Category, error) {
 	result := cr.db.Find(&categories)
 
 	return categories, result.Error
+}
+
+func (cr *CategoryRepository) FindAllPaginated(limit int, offset int) (models.Pagination, error) {
+	var categories []models.Category
+	result := cr.db.Limit(limit).Offset(offset).Find(&categories)
+
+	pagination := models.Pagination{
+		Offset: offset,
+		Limit:  limit,
+		Total:  int(result.RowsAffected),
+		Items:  categories,
+	}
+
+	return pagination, result.Error
 }
 
 func (cr *CategoryRepository) FindByID(id int64) (models.Category, error) {
