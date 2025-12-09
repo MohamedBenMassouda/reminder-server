@@ -22,10 +22,9 @@ Now output ONLY the cleaned, non-technical release notes text. No preamble.
 EOF
 )
 
-echo "Prompt: $PROMPT"
 echo "Sending prompt to model..."
 
-RESPONSE=$(curl -sS https://models.github.ai/inference/chat/completions \
+RESPONSE=$(curl -sS -w "\n%{http_code}" https://models.github.ai/inference/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $GH_MODELS_TOKEN" \
   -d "$(jq -n --arg model "$GH_MODEL" --arg prompt "$PROMPT" '{
@@ -36,9 +35,15 @@ RESPONSE=$(curl -sS https://models.github.ai/inference/chat/completions \
         ],
         max_tokens: 800
       }')")
-      
 
-echo "Response: $RESPONSE"
+HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+RESPONSE=$(echo "$RESPONSE" | sed '$d')
+
+if [ "$HTTP_CODE" -ne 200 ]; then
+    echo "API request failed with status $HTTP_CODE"
+    exit 1
+fi
+
 echo "Model response received."
 
 MODEL_JSON=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
@@ -47,22 +52,30 @@ echo "Model Json: $MODEL_JSON"
 
 if [[ -z "$MODEL_JSON" || "$MODEL_JSON" == "null" ]]; then
     echo "Model returned empty or null JSON. Skipping Teams notification."
-    exit 0
+    exit 1
 fi
 
 if ! echo "$MODEL_JSON" | jq empty >/dev/null 2>&1; then
     echo "Model output is not valid JSON. Skipping Teams notification."
-    exit 0
+    exit 1
 fi
 
-FINAL_JSON=$(echo "$MODEL_JSON" | jq --arg subject "Foreman ${CURR_TAG} Release Notes - ${DATE}" '. + { subject: $subject }')
+FINAL_JSON=$(echo "$MODEL_JSON" | jq --arg subject $SUBJECT '. + { subject: $subject }')
 
 echo "Final JSON: $FINAL_JSON"
 
 echo "Final JSON prepared. Sending to Microsoft Teams webhook..."
 
-curl -sS -X POST \
+HTTP_RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST \
   -H "Content-Type: application/json" \
   -d "$FINAL_JSON" \
-  "$TEAMS_WEBHOOK_URL"
+  "$TEAMS_WEBHOOK_URL")
 
+HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -n1)
+
+if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+    echo "Teams webhook failed with status $HTTP_CODE"
+    exit 1
+fi
+
+echo "Successfully sent notification to Teams"
