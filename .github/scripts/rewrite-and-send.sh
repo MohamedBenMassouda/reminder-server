@@ -14,7 +14,7 @@ echo "Generating cleaned release notes using model ${GH_MODEL}"
 
 # 1) Build the prompt
 PROMPT=$(cat <<EOF
-$(cat release-prompt.txt)
+$(cat .github/scripts/release-prompt.txt)
 
 $(cat release-notes.md)
 ---
@@ -60,7 +60,7 @@ if ! echo "$MODEL_JSON" | jq empty >/dev/null 2>&1; then
     exit 1
 fi
 
-FINAL_JSON=$(echo "$MODEL_JSON" | jq --arg subject $SUBJECT '. + { subject: $subject }')
+FINAL_JSON=$(echo "$MODEL_JSON" | jq --arg subject "$SUBJECT" '. + { subject: $subject }')
 
 echo "Final JSON: $FINAL_JSON"
 
