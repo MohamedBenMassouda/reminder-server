@@ -19,7 +19,7 @@ echo "Generating cleaned release notes using model ${GH_MODEL}"
 
 # 1) Build the prompt
 PROMPT=$(cat <<EOF
-$(cat .github/scripts/release-prompt.txt)
+$(cat release-prompt.txt)
 
 $(cat release-notes.md)
 ---
