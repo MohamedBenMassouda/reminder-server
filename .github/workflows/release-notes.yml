@@ -1,4 +1,4 @@
-name: Release notes to Teams (non-technical)
+name: Release notes to Teams
 
 on:
   workflow_run:
@@ -12,6 +12,7 @@ permissions:
 jobs:
   release-notes:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,16 +34,14 @@ jobs:
         run: |
           gh release view $CURR_TAG --json body -q .body > release-notes.md
 
-      - name: Install tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq curl
+      - name: Make script executable
+        run: chmod +x .github/scripts/rewrite-and-send.sh
 
       - name: Rewrite notes and send to Teams
         env:
           GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
           GH_MODEL: ${{ secrets.GH_MODEL }}
+          CURR_TAG: ${{ env.CURR_TAG }}
         run: |
           .github/scripts/rewrite-and-send.sh
-
