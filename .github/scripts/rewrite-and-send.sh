@@ -6,6 +6,11 @@ set -euo pipefail
 : "${GH_MODEL:?GH_MODEL is required}"
 : "${CURR_TAG:?CURR_TAG is required}"
 
+if [[ ! -s release-notes.md ]]; then
+    echo "Error: release-notes.md is empty. Cannot generate release notes."
+    exit 1
+fi
+
 DATE=$(date +"%Y-%m-%d")
 SUBJECT="Foreman ${CURR_TAG} Release Notes - ${DATE}"
 
@@ -57,6 +62,23 @@ fi
 
 if ! echo "$MODEL_JSON" | jq empty >/dev/null 2>&1; then
     echo "Model output is not valid JSON. Skipping Teams notification."
+    exit 1
+fi
+
+has_bug_fixes=$(echo "$MODEL_JSON" | jq 'has("bugFixes")')
+has_enhancements=$(echo "$MODEL_JSON" | jq 'has("enhancements")')
+
+# Check both fields exist
+if [[ "$has_bug_fixes" != "true" && "$has_enhancements" != "true" ]]; then
+    echo "JSON must contain at least one of: bugFixes or enhancements."
+    exit 1
+fi
+
+bug_fix_count=$(echo "$MODEL_JSON" | jq '.bugFixes | length // 0')
+enh_count=$(echo "$MODEL_JSON" | jq '.enhancements | length // 0')
+
+if [[ "$bug_fix_count" -eq 0 && "$enh_count" -eq 0 ]]; then
+    echo "Both bugFixes and enhancements are empty. At least one must be non-empty."
     exit 1
 fi
 
