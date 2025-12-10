@@ -30,6 +30,7 @@ jobs:
         if: ${{ env.HEAD_REF == 'testing' }}
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           chmod +x .github/scripts/prepare-pr-description.sh
           .github/scripts/prepare-pr-description.sh

@@ -2,12 +2,15 @@
 set -euo pipefail
 
 : "${PR_NUMBER:?Please set PR_NUMBER environment variable}"
+: "${GITHUB_REPOSITORY:?Please set GITHUB_REPOSITORY environment variable}"
+
+REPOSITORY="${GITHUB_REPOSITORY}"
 
 echo "Generating PR body for PR #$PR_NUMBER"
 echo "Fetching commits for PR #$PR_NUMBER..."
 
 # Get commit SHAs directly using gh's built-in jq support
-SHAS=$(gh api repos/${{github.repository}}/pulls/$PR_NUMBER/commits --jq '.[].sha')
+SHAS=$(gh api repos/$REPOSITORY/pulls/$PR_NUMBER/commits --jq '.[].sha')
 
 # Count commits just for logging
 COMMIT_COUNT=$(printf '%s\n' $SHAS | sed '/^$/d' | wc -l || true)
@@ -25,7 +28,7 @@ PR_LIST_FILE="pr-list.tmp"
 for sha in $SHAS; do
   echo "Processing commit $sha"
 
-  PULLS=$(gh api repos/${{github.repository}}/commits/$sha/pulls --jq '.[].number')
+  PULLS=$(gh api repos/$REPOSITORY/commits/$sha/pulls --jq '.[].number')
 
   echo "Found associated PRs for commit $sha: $PULLS"
 
