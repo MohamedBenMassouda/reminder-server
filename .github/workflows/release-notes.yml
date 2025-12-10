@@ -1,38 +1,28 @@
-name: Release notes to Teams
+name: Send Release notes to Teams
 
 on:
-  workflow_run:
-    workflows: ["Auto Tag"]
-    types:
-      - completed
+  pull_request:
+    branches: [main]
+    types: [closed]
 
 permissions:
   contents: write
 
 jobs:
   release-notes:
+    if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Determine tags
+      - name: Write PR body to file
         run: |
-          echo "CURR_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-
-      - name: Generate Release Notes
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create --generate-notes --latest $CURR_TAG
-
-      - name: Get release notes
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release view $CURR_TAG --json body -q .body > release-notes.md
+          cat << 'EOF' > release-notes.md
+          ${{ github.event.pull_request.body }}
+          EOF
 
       - name: Make script executable
         run: chmod +x .github/scripts/rewrite-and-send.sh
