@@ -51,34 +51,3 @@ get_enhancements() {
     _parse_section "$text" "$ENHANCEMENTS_SECTION" "$END_SECTION" | jq -R . | jq -s .
 }
 
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-    if ! [ -t 0 ]; then
-        # stdin has data → read all of it
-        TEXT="$(cat)"
-    else
-        # stdin is a terminal
-        if [[ -n "$1" && -f "$1" ]]; then
-            # Argument is a file path → read file contents
-            TEXT="$(<"$1")"
-        else
-            # Argument is treated as raw text
-            TEXT="$1"
-        fi
-    fi
-
-    FEATURES_LIST="$(get_features "$TEXT")"
-    BUG_FIX_LIST="$(get_bug_fixes "$TEXT")"
-    ENHANCEMENT_LIST="$(get_enhancements "$TEXT")"
-
-    echo "Features found:"
-    echo "$FEATURES_LIST"
-    echo
-
-    echo "Bug Fixes found:"
-    echo "$BUG_FIX_LIST"
-    echo
-
-    echo "Enhancements found:"
-    echo "$ENHANCEMENT_LIST"
-fi
-
