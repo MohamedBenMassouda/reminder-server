@@ -16,33 +16,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Bump semantic version with rollover
+      - name: Bump calendar version yyyy-MM.release
         run: |
-          # get latest tag, default to v0.0.0 if none
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "Last tag: $LAST_TAG"
+          # Current year-month prefix, e.g. "2025-12"
+          CURRENT_PREFIX=$(date +'%Y-%m')
+          echo "Current prefix: $CURRENT_PREFIX"
 
-          VERSION=${LAST_TAG#v}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          # Find the latest tag for this month: "YYYY-MM.*"
+          LAST_TAG=$(git tag --list "${CURRENT_PREFIX}.*" | sort -V | tail -n 1 || true)
+          echo "Last tag for this month: ${LAST_TAG:-<none>}"
 
-          # increment patch
-          PATCH=$((PATCH + 1))
-
-          # rollover patch at 10
-          if [ "$PATCH" -ge 10 ]; then
-            PATCH=0
-            MINOR=$((MINOR + 1))
+          if [ -z "$LAST_TAG" ]; then
+            # No tag yet for this month → start at 1
+            RELEASE=1
+          else
+            # Extract the release number after the last dot
+            LAST_RELEASE=${LAST_TAG##*.}
+            # Safety: default to 0 if parsing fails
+            if ! echo "$LAST_RELEASE" | grep -Eq '^[0-9]+$'; then
+              echo "Warning: last release '$LAST_RELEASE' is not a number, defaulting to 0"
+              LAST_RELEASE=0
+            fi
+            RELEASE=$((LAST_RELEASE + 1))
           fi
 
-          # rollover minor at 10
-          if [ "$MINOR" -ge 10 ]; then
-            MINOR=0
-            MAJOR=$((MAJOR + 1))
-          fi
-
-          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          NEW_TAG="${CURRENT_PREFIX}.${RELEASE}"
           echo "New tag: $NEW_TAG"
 
+          # Create and push the new tag
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
 
