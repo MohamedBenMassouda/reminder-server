@@ -54,6 +54,10 @@ SKIP_PATTERNS=(
 echo "Building PR body..."
 > "$BODY_FILE"
 
+FEATURES_LIST=()
+BUG_FIXES_LIST=()
+ENHANCEMENTS_LIST=()
+
 while read -r p; do
   [ -z "$p" ] && continue
 
@@ -78,12 +82,44 @@ while read -r p; do
 
   echo "Including PR #$p (title: \"$TITLE\")"
 
-  gh pr view "$p" \
-    --json number,title,body \
-    --template '{{printf "### #%v - %s\n\n%s\n\n" .number .title .body}}' \
-    >> "$BODY_FILE"
+  # Get the body of the pr in a variable
+  BODY=$(gh pr view "$p" --json body --jq .body)
+  FEATURE_TEXT=get_features "$BODY"
+  BUG_FIX_TEXT=get_bug_fixes "$BODY"
+  ENHANCEMENT_TEXT=get_enhancements "$BODY"
+
+  # Append to the respective sections
+  if [ "$(echo "$FEATURE_TEXT" | jq 'length')" -gt 0 ]; then
+    FEATURES_LIST+=("$FEATURE_TEXT")
+  fi
+
+  if [ "$(echo "$BUG_FIX_TEXT" | jq 'length')" -gt 0 ]; th  if [ "$(echo "$BUG_FIX_TEXT" | jq 'length')" -gt 0 ]; then
+    BUG_FIXES_LIST+=("$BUG_FIX_TEXT")
+  fi
+
+  if [ "$(echo "$ENHANCEMENT_TEXT" | jq 'length')" -gt 0 ]; th  if [ "$(echo "$ENHANCEMENT_TEXT" | jq 'length')" -gt 0 ]; then
+    ENHANCEMENTS_LIST+=("$ENHANCEMENT_TEXT")
+  fi
 
 done < "$UNIQUE_PR_LIST_FILE"
+
+echo "Compiling final PR body sections..."
+
+echo "$BUG_FIXES_SECTION" >> "$BODY_FILE"
+echo "" >> "$BODY_FILE"
+echo "${BUG_FIXES_LIST[@]}" | jq -s 'add | .[]' | sed 's/^/- [ ] /' >> "$BODY_FILE"
+echo "" >> "$BODY_FILE"
+echo "$END_SECTION" >> "$BODY_FILE"
+echo "$FEATURES_SECTION" >> "$BODY_FILE"
+echo "" >> "$BODY_FILE"
+echo "${FEATURES_LIST[@]}" | jq -s 'add | .[]' | sed 's/^/- [ ] /' >> "$BODY_FILE"
+echo "" >> "$BODY_FILE"
+echo "$END_SECTION" >> "$BODY_FILE"
+echo "$ENHANCEMENTS_SECTION" >> "$BODY_FILE"
+echo "" >> "$BODY_FILE"
+echo "${ENHANCEMENTS_LIST[@]}" | jq -s 'add | .[]' | sed 's/^/- [ ] /' >> "$BODY_FILE"
+echo "" >> "$BODY_FILE"
+echo "$END_SECTION" >> "$BODY_FILE"
 
 echo "PR body content generated in $BODY_FILE"
 
