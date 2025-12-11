@@ -3,7 +3,7 @@ name: Prepare stable PR description
 on:
   pull_request:
     branches: [main]
-    types: [opened, reopened, synchronize, edited]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read
