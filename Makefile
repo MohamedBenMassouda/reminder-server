@@ -53,3 +53,7 @@ build:  ## Build the application
 test:  ## Run tests
 	go test -v ./...
 
+.PHONY: swagger
+swagger:  ## Generate swagger documentation
+	~/go/bin/swag init -g cmd/server/main.go -o ./docs
+
