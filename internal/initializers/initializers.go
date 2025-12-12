@@ -21,6 +21,7 @@ type Initializers struct {
 	CategoryHandler *handlers.CategoryHandler
 	ReminderHandler *handlers.ReminderHandler
 	UserHandler     *handlers.UserHandler
+	HealthHandler   *handlers.HealthHandler
 	Config          *Config
 }
 
@@ -93,6 +94,7 @@ func NewInitializers() *Initializers {
 		CategoryHandler: handlers.NewCategoryHandler(categoryService),
 		ReminderHandler: handlers.NewReminderHandler(reminderService),
 		UserHandler:     handlers.NewUserHandler(userService),
+		HealthHandler:   handlers.NewHealthHandler(DB),
 		Config:          config,
 	}
 }
