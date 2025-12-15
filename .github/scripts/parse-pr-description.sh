@@ -29,7 +29,7 @@ _parse_section() {
 
 BUG_FIXES_SECTION="## 🐞 Bug Fixes"
 FEATURES_SECTION="## ✨ Features"
-ENHANCEMENTS_SECTION="## 🔧 Enhancements"
+ENHANCEMENTS_SECTION="## 🔧 Enhancements / Improvements"
 END_SECTION="---"  # or empty string to parse until EOF
 
 # Public function: get bug fixes
