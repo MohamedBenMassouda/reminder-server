@@ -87,6 +87,11 @@ while read -r p; do
     continue
   fi
 
+  if [ "$p" -eq "$PR_NUMBER" ]; then
+    echo "Skipping current PR #$p"
+    continue
+  fi
+
   echo "Including PR #$p (title: \"$TITLE\")"
 
   # Get the body of the pr in a variable
@@ -114,19 +119,31 @@ echo "Compiling final PR body sections..."
 
 echo "$BUG_FIXES_SECTION" >> "$BODY_FILE"
 echo "" >> "$BODY_FILE"
-echo "${BUG_FIXES_LIST[@]}" | jq -s 'add | .[]' | sed 's/^/- /' >> "$BODY_FILE"
+echo "${BUG_FIXES_LIST[@]}" \
+  | jq -s -r 'add | .[]' \
+  | tr -d '\r' \
+  | sed 's/^/- /' >> "$BODY_FILE"
 echo "" >> "$BODY_FILE"
 echo "$END_SECTION" >> "$BODY_FILE"
+
 echo "$FEATURES_SECTION" >> "$BODY_FILE"
 echo "" >> "$BODY_FILE"
-echo "${FEATURES_LIST[@]}" | jq -s 'add | .[]' | sed 's/^/- /' >> "$BODY_FILE"
+echo "${FEATURES_LIST[@]}" \
+  | jq -s -r 'add | .[]' \
+  | tr -d '\r' \
+  | sed 's/^/- /' >> "$BODY_FILE"
 echo "" >> "$BODY_FILE"
 echo "$END_SECTION" >> "$BODY_FILE"
+
 echo "$ENHANCEMENTS_SECTION" >> "$BODY_FILE"
 echo "" >> "$BODY_FILE"
-echo "${ENHANCEMENTS_LIST[@]}" | jq -s 'add | .[]' | sed 's/^/- /' >> "$BODY_FILE"
+echo "${ENHANCEMENTS_LIST[@]}" \
+  | jq -s -r 'add | .[]' \
+  | tr -d '\r' \
+  | sed 's/^/- /' >> "$BODY_FILE"
 echo "" >> "$BODY_FILE"
 echo "$END_SECTION" >> "$BODY_FILE"
+
 
 echo "PR body content generated in $BODY_FILE"
 
