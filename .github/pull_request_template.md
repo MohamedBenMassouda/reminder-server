@@ -1,6 +1,8 @@
 ## 📝 Summary
 Provide a brief description of the changes in this PR.
 
+> **Note:** For *Bug Fixes*, *Features*, and *Enhancements*, leave any section empty if it is not applicable or should not be included in the release notes.
+
 ---
 
 ## 🐞 Bug Fixes
