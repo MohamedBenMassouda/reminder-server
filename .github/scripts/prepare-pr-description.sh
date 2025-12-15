@@ -156,3 +156,6 @@ echo "Updating PR body on GitHub..."
 gh pr edit "$PR_NUMBER" --body-file "$BODY_FILE"
 echo "Done."
 
+echo "Cleaning up temporary files..."
+rm "$PR_LIST_FILE" "$UNIQUE_PR_LIST_FILE"
+rm "$BODY_FILE"
